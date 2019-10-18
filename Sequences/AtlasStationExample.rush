@@ -1,0 +1,178 @@
+# Atlas Logging:
+#	 =>	Atlas.Log.info(arguemnts...)
+#	 =>	Atlas.Log.debug(arguments...)
+#	 =>	Atlas.Log.error(arguments...)
+
+# Atlas Exception:
+#	 =>	Atlas.Exceptions.PluginFailedError
+#	 =>	Atlas.Exceptions.UnitPanic
+#	 =>	Atlas.Exceptions.InvalidFileError
+#	 =>	Atlas.Exceptions.InvalidLimit
+#	 =>	Atlas.Exceptions.InvalidParameterError
+#	 =>	Atlas.Exceptions.InternalError
+
+# Atlas Call Plugin:
+#	 =>	Atlas.call_plugin(name, command)
+#	 =>	Atlas.call_plugin(name, command, parameters)
+#	 =>	Atlas.call_plugin(name, command, parameters, limits)
+#	 =>	Atlas.call_plugin(name, command, parameters, limits, options)
+
+# Atlas Execute Test:
+#	 =>	Atlas.execute_test(testName, functionPointer, args...)
+#	 =>	Atlas.execute_test(testName, prependNamesArray, functionPointer, args...)
+
+# Atlas Record Creation:
+#	 =>	Atlas.create_record(names, PassFailBool)
+#    => Atlas.create_record(names, PassFailBool, failMessage)
+#	 =>	Atlas.create_record(names, measurement, units)
+#	 =>	Atlas.create_record(names, measurement, units, limit)
+#    => Atlas.create_record(names, measurement, units, limit, failMessage)
+
+# Atlas Limit Creation:
+#	 =>	Atlas.create_limit(name, upper_limit, lower_limit, relaxed_upper_limit, relaxed_lower_limit, limit_units)
+
+# Atlas Limit Loading:
+#	 =>	Atlas.load_limits_file(file_path)
+
+finishWithError(e) {
+	Atlas.Log.error("caught exception", e.className)
+
+	if ( e.class == "UserException" ) {
+		Atlas.Log.error("Custom Exception Behaviour")
+	}
+}
+
+exampleFunctionTest(param, limit)
+{
+	Pass = True
+	Fail = False
+
+	# Atlas Create Record : Creating PDCA Pass Fail Records inside rush.
+	# * Do not call outside of a test unless you are in a test (inside Atlas.execute_test). Exception will be thrown.
+	# Atlas.create_record(names, PassFailBool)
+	# Atlas.create_record(names, measurement, units)
+	# Atlas.create_record(names, measurement, units, limit)
+	# Atlas.create_record(names, measurement, units, limit, failMessage)
+	if :TRUE: {
+		Atlas.create_record(["Cool Name"], Pass)
+	}
+
+	measurement = 6.5
+
+	# Atlas Create Record : Here is a parametric record. Notice no pass fail. It will be pass without limits
+	# * Do not call outside of a test unless you are in a test (inside Atlas.execute_test). Exception will be thrown.
+	# Atlas.create_record(names, PassFailBool)
+	# Atlas.create_record(names, PassFailBool, failMessage)
+	# Atlas.create_record(names, measurement, units)
+	# Atlas.create_record(names, measurement, units, limit)
+	# Atlas.create_record(names, measurement, units, limit, failMessage)
+	Atlas.create_record(["SomeName", "Some SubName", "Some SubSubName"], measurement, "mV")
+
+	# Atlas Create Record : Here is a parametric record with limits. Notice no pass fail. It will be pass if the limits pass.
+	# * Do not call outside of a test unless you are in a test (inside Atlas.execute_test). Exception will be thrown.
+	# Atlas.create_record(names, PassFailBool)
+	# Atlas.create_record(names, PassFailBool, failMessage)
+	# Atlas.create_record(names, measurement, units)
+	# Atlas.create_record(names, measurement, units, limit)
+	# Atlas.create_record(names, measurement, units, limit, failMessage)
+	Atlas.create_record(["Some Other Name", "Some Other Sub Name"], measurement, "mV", limit)
+
+	#Atlas Create Limit creates a limit map that can be passed into a record
+	customLimit = Atlas.create_limit("someVoltage", 100, :NIL:, :NIL:, :NIL:, "mV")
+  Atlas.create_record(["customLimit"], measurement, "mV", customLimit)
+
+
+}
+
+exampleExeception()
+{
+	# Atlas Exception: Throws a custom Rush Exception
+	# Atlas.Exceptions.PluginFailedError
+	# Atlas.Exceptions.UnitPanic
+	# Atlas.Exceptions.InvalidFileError
+	# Atlas.Exceptions.InvalidLimit
+	# Atlas.Exceptions.InvalidParameterError
+	# Atlas.Exceptions.InternalError
+	# $#@!(exceptionlavel)
+	if :FALSE: {
+		raise Atlas.Exceptions.InternalError
+	}
+
+	if :TRUE: {
+		raise $#@!("UserException")
+	}
+
+}
+
+main()
+{
+
+	if (Atlas.are_files_secure()) 
+	{	
+		Atlas.Log.info("files are secure")
+	}
+	else
+	{
+		Atlas.Log.info("files are unsecure")
+	}
+
+	
+
+     #open 参数
+     params = {
+     "uartPortURL":"uart:///dev/cu.usbmodem14101",
+     "baudRate":9600,
+     "stringToSendOnOpen":""
+     } 
+     
+    
+     Atlas.execute_test("Dut - open", Atlas.call_plugin, "Uart", "open", params)  onError e -> finishWithError(e)
+     
+
+     #设置结尾符号
+     Atlas.execute_test("Dut - changeDelimiter", Atlas.call_plugin, "Uart", "changeDelimiter",{"delimiter":">"})  onError e -> finishWithError(e)
+     
+     #发送命令
+     output=Atlas.execute_test("Dut - sendCommand", Atlas.call_plugin, "Uart", "sendCommand", {"timeout":5, "parseCommand":"fsn"})  onError e -> finishWithError(e)
+     Atlas.Log.info("output is1:" + represent(output))
+     
+     #{"__regex_metadata__":{"length":23.000000, "location":0.000000, "matchedPattern":"<fsn-DLC904400APLNWK1Z>", "regex":"<fsn-(.*)>"}, "fsn":"DLC904400APLNWK1Z"}
+
+     sn = output["fsn"]
+
+     Atlas.Log.info("sn is ---->" + sn)
+
+
+
+
+
+        # parse response from uartChannel: <fsn-DLC904400APLNWK1Z>
+		# parsed output : (
+		#          {
+		#          "__regex_metadata__" =         {
+		#              length = 23;
+		#              location = 0;
+		#              matchedPattern = "<fsn-DLC904400APLNWK1Z>";
+		#              regex = "<fsn-(.*)>";
+		#          };
+		#          fsn = DLC904400APLNWK1Z;
+		#      }
+		#  )  
+
+
+
+
+    #关闭Uart
+    Atlas.execute_test("Dut - close", Atlas.call_plugin, "Uart", "close")  onError e -> finishWithError(e)
+    
+    
+
+	Atlas.Log.info("Finished Test")
+}
+
+record(measurement){
+	Atlas.create_record(["record1"], measurement, "NA")
+}
+
+
+

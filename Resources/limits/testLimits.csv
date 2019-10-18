@@ -1,0 +1,10 @@
+group,name,units,upperLimit,lowerLimit,relaxedUpperLimit,relaxedLowerLimit
+MP,battery,mV,100,5,,
+MP,wireless,mV,100,45,,
+MP,gyro,mV,100,25,,
+MP,camera,mV,100,15,,
+DOE,battery,mV,40,30,,
+DOE,wireless,mV,100,45,,
+DOE,gyro,mV,100,25,,
+DOE,camera,mV,100,15,,
+FOO,HelloFoo,s,51,0,,

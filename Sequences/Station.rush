@@ -1,0 +1,120 @@
+# Atlas Logging:
+#	 =>	Atlas.Log.info(arguemnts...)
+#	 =>	Atlas.Log.debug(arguments...)
+#	 =>	Atlas.Log.error(arguments...)
+
+# Atlas Launch Station Plugin:
+#	 =>	Atlas.launch_plugin(bundle, plugin)
+#	 =>	Atlas.launch_plugin(bundle, plugin, name)
+#	 =>	Atlas.launch_plugin(bundle, plugin, name, setup_parameters)
+
+# Atlas Teardown Station Plugin:
+#	 =>	Atlas.teardown_plugin(name)
+#	 =>	Atlas.teardown_plugin(name, teardown_parameters)
+
+#
+# App Setup:
+# * Called when app first connects to the atlas core and before the station is started
+# * Called when app first connects to the atlas core and before the station is started
+#
+
+app_setup(app)
+{
+  app.settings = {
+    "station-name" : "Atlas Station Example",
+    "force-fullscreen" : :FALSE:,
+	"start-button" : {
+	"groups" : [{
+		"identifier" : "group1",
+			"units" : [
+				{
+					"identifier" : "Unit1"
+				}
+			]
+		}
+	]
+    }
+  }
+}
+
+#
+# Station Setup:
+# * Called when core is starting your station for the first time (app start)
+#
+
+station_setup()
+{
+	# Log : Call takes any types and is variable argument
+	# Atlas.Log.info(arguemnts...)
+	# Atlas.Log.debug(arguments...)
+	# Atlas.Log.error(arguments...)
+	Atlas.Log.info("Setting up station")
+
+	# Define a dictionary to configure station level Bar
+	barConfig = {
+		"delay"	 : 0.5,
+		"repeat" : 5
+	}
+
+	# Plugin Launch : Station plugin are visible to all units.
+	# Atlas.launch_plugin(bundle, plugin)
+	# Atlas.launch_plugin(bundle, plugin, name)
+	# Atlas.launch_plugin(bundle, plugin, name, setup_parameters)
+	Atlas.launch_plugin("FooBar", "Bar", "Bar", barConfig)
+}
+
+#
+# Station Teardown:
+# * Called when core is tearing down your station (app quit)
+#
+
+station_teardown()
+{
+	Atlas.Log.info("Station teardown")
+
+	# Plugin Teardown :
+	# Atlas.teardown_plugin(name)
+	# Atlas.teardown_plugin(name, teardown_parameters)
+	Atlas.teardown_plugin("Bar")
+}
+
+#
+# Unit Setup:
+# * Called only when core receives new unit.
+#
+
+unit_setup(unit)
+{
+	Atlas.Log.info("Started", unit)
+
+    Atlas.launch_plugin(unit, "AtlasPluginLibrary", "UART", "Uart", {
+    	"parseFiles": [
+        "~/Library/Atlas/Resources/parseDefinitions/CrowTemphum.md"
+        ]})
+
+	Atlas.set_sequence(unit, "AtlasStationExample.rush")
+}
+
+
+# Unit Setup:
+# * <Fill In>
+#
+
+unit_teardown(unit)
+{
+	Atlas.Log.info(unit, "Finished")
+}
+
+group_setup(group)
+{
+	Atlas.Log.info("Setting up Group")
+	Atlas.launch_plugin(group, "FooBar", "Foo")
+	for unit in group.units {
+		unit_setup(unit)
+	}
+}
+
+group_teardown(group)
+{
+	Atlas.Log.info("Group teardown")
+}
