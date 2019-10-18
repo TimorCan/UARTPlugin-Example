@@ -45,7 +45,7 @@ Atlas.execute_test("Dut - close", Atlas.call_plugin, "Uart", "close")  onError e
 # md 定义
 ```
 Fsn
----- -----------------
+---------------------
  - Command name : `fsn`  //命令名字
  - Command to send : `[FSN]` //具体发送的命令
 \```
