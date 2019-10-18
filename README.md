@@ -4,7 +4,7 @@ UARTPlugin使用示例
 
 ## launch_plugin_
 ```
-` Atlas.launch_plugin(unit, "AtlasPluginLibrary", "UART", "Uart", {
+ Atlas.launch_plugin(unit, "AtlasPluginLibrary", "UART", "Uart", {
 "parseFiles": [
 ]()"/Library/Atlas/Resources/parseDefinitions/CrowTemphum.md"
 ]})
@@ -13,7 +13,7 @@ UARTPlugin使用示例
 
 ## 使用
 ```
-` //open 参数
+ //open 参数
  params = {
  "uartPortURL":"uart:///dev/cu.usbmodem14101",
  "baudRate":9600,
@@ -44,13 +44,13 @@ Atlas.execute_test("Dut - close", Atlas.call_plugin, "Uart", "close")  onError e
 `
 # md 定义
 ```
-`Fsn
+Fsn
 ---- -----------------
  - Command name : `fsn`  //命令名字
  - Command to send : `[FSN]` //具体发送的命令
 ```
-`\<fsn-{{fsn}}\>
+<fsn-{{fsn}}\>
 ```
 ````
-`
+
 
