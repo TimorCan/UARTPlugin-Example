@@ -6,7 +6,7 @@ UARTPlugin使用示例
 ```
  Atlas.launch_plugin(unit, "AtlasPluginLibrary", "UART", "Uart", {
 "parseFiles": [
-]()"/Library/Atlas/Resources/parseDefinitions/CrowTemphum.md"
+ "/Library/Atlas/Resources/parseDefinitions/CrowTemphum.md"
 ]})
 ```
 
